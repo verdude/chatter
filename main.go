@@ -5,5 +5,8 @@ import (
 )
 
 func main() {
+  zapr.Init(9)
+  defer zapr.Sync()
   zapr.I("ok")
+  zapr.V(8).I("um ok")
 }
