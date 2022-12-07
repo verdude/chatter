@@ -2,8 +2,9 @@ package main
 
 import (
   "bytes"
+  "bufio"
+  "os"
   "flag"
-  "fmt"
   "io"
   "net/http"
   "encoding/json"
@@ -24,7 +25,8 @@ type BotMessage struct {
 
 func sendMessage(msg string) (string, error) {
   zapr.V(5).I("Sending Message...")
-  payload, err := json.Marshal(UserMessage{Sender: "santi", Message: msg})
+  userMessage := UserMessage{Sender: "santi", Message: msg}
+  payload, err := json.Marshal(userMessage)
   if err != nil {
     zapr.V(3).E("Failed to encode json string", zap.Any("error", err))
     return "", err
@@ -60,9 +62,9 @@ func sendMessage(msg string) (string, error) {
 
 func getMessage() (string, error) {
   zapr.V(5).I("Getting Message...")
-  var msg string
-  n, err := fmt.Scanln(&msg)
-  if err != nil || n <= 0 {
+  reader := bufio.NewReader(os.Stdin)
+  msg, err := reader.ReadString('\n')
+  if err != nil || len(msg) <= 0 {
     return "", err
   }
   return msg, nil
@@ -78,7 +80,7 @@ func main() {
   for {
     msg, err := getMessage()
     if err != nil {
-      zapr.V(3).I("Finished", zap.Any("error", err))
+      zapr.V(3).I("Failure", zap.Any("error", err))
       break
     }
     zapr.V(5).I("Got message:", zap.Any("message", msg))
